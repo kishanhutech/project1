@@ -1,40 +1,18 @@
 package com.example.App1.dto;
 
-import lombok.Getter;
-import lombok.Setter;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Size;
+import lombok.Data;
 
-@Getter
-@Setter
+@Data
 public class changepasswordDto {
 
-	private String email ;
+	@Email(message = "check your mail")
+	private String email;
+	@Size(min =6,message = "atleast 6 character")
 	private String oldPassword ;
+	@Size(min = 6,message ="password must more than 6 character")
 	private String newPassword ;
 	private String message ;
-	public String getEmail() {
-		return email;
-	}
-	public void setEmail(String email) {
-		this.email = email;
-	}
-	public String getOldPassword() {
-		return oldPassword;
-	}
-	public void setOldPassword(String oldPassword) {
-		this.oldPassword = oldPassword;
-	}
-	public String getNewPassword() {
-		return newPassword;
-	}
-	public void setNewPassword(String newPassword) {
-		this.newPassword = newPassword;
-	}
-	public String getMessage() {
-		return message;
-	}
-	public void setMessage(String message) {
-		this.message = message;
-	} 
-	
 	
 }

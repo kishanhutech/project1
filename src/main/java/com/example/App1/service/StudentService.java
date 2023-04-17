@@ -3,10 +3,12 @@ package com.example.App1.service;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.App1.Entity.Student;
+import com.example.App1.dto.ForgottenpasswordDto;
 import com.example.App1.dto.LoginDto;
 import com.example.App1.dto.LogoutDto;
 import com.example.App1.dto.changepasswordDto;
@@ -22,14 +24,18 @@ public class StudentService {
 	@Autowired
 	private MailService mailService;
 
+	@Autowired
+	private  ModelMapper modelMapper;
 	Student st;
+	
 	//------------------------------SAVE----------------------------------------------------------
+	
 	public Student save(Student student) throws Exception
 	{
-		studentRepo.save(student);
-		String activationCode = mailService.sendEmailToVerify(student.getEmail()) ;				
-		student.setActivationCode(activationCode);
-		studentRepo.save(student) ;	
+			studentRepo.save(student);
+			String activationCode = mailService.sendEmailToVerify(student.getEmail()) ;				
+			student.setActivationCode(activationCode);
+			studentRepo.save(student) ;	
 		return student ;
 	}
 
@@ -79,7 +85,7 @@ public class StudentService {
 				st.setStatus(0);
 				loginDto.setStatus("your acount is deavtivated");
 				String code = mailService.sendEmailToVerify(st.getEmail());
-				st.setActivationCode(code);
+			    st.setActivationCode(code);
 			}
 			else if(st.getStatus()==0)
 			{
@@ -87,7 +93,7 @@ public class StudentService {
 			}
 			else
 			{
-				loginDto.setStatus("login failed " + (5 - st.getCount())+" attempts");
+				loginDto.setStatus("login failed " + (5 - st.getCount())+" attempts rest");
 
 			}
 
@@ -98,9 +104,14 @@ public class StudentService {
 
 
 	//==========================================FINDBYID======================================
-	public Optional<Student> findbyid(Integer id) {
-
-		return studentRepo.findById(id);
+	public Optional<Student> findbyid(Integer id) 
+	{
+	Optional<Student> st = studentRepo.findById(id);
+	if (st.isEmpty())
+	{
+		throw new NoSuchElementException("id doesn't exist");
+	}
+	return st;
 	}
 
 
@@ -120,6 +131,7 @@ public class StudentService {
 				{
 					st.setPassWord(changepasswordDto.getNewPassword());
 					changepasswordDto.setMessage("password changed successfully");
+					st.setLogin(0);
 				}
 			}
 		}
@@ -146,5 +158,33 @@ public class StudentService {
 		}
 		return student;
 	}
-
+//====================================	FORGOTTONPASSWORD==============================
+	
+	public Student forgottenpass(ForgottenpasswordDto forgottenpasswordDto) throws Exception
+	{
+		Student student = findByEmail(forgottenpasswordDto.getEmail());
+		String code = mailService.sendEmailTOforgottenpass(forgottenpasswordDto.getEmail());
+		student.setPassWord(code);
+		forgottenpasswordDto.setMessage("this is your new passWord");
+		update(student);
+		return student;
+	}
+	
+	public boolean isvalidpassword(String st)
+	{
+		String pattern = ("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$");
+		return st.matches(pattern);
+	}
+	
+	public Student dtoStudent(LoginDto loginDto)
+	{
+		Student student = this.modelMapper.map(loginDto, Student.class);
+	     return student;
+	}
+	
+	public LoginDto logindto(Student  student)
+	{
+	   LoginDto loginDto = this.modelMapper.map(student,LoginDto.class);
+	   return loginDto;
+	}
 }

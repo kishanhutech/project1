@@ -34,4 +34,29 @@ public class MailService {
 		
 		return activationCode ;
 	}
+	
+	
+	
+	
+	//========================================================================================================================
+	public String sendEmailTOforgottenpass(String email) throws Exception
+	{
+		MimeMessage mime = javaMailSender.createMimeMessage() ;
+		MimeMessageHelper helper = new MimeMessageHelper(mime) ;
+		
+		helper.setTo(email) ;
+		helper.setSubject("password") ; 
+		
+		String Code = Util.generateCode() ;		
+		StringBuilder link = new StringBuilder() ;
+		link.append("<h1>this is your new password</h1><br>");
+		link.append(Code);
+		helper.setText(link.toString(),true) ;
+		
+		javaMailSender.send(mime) ;
+		
+		return Code ;
+	}
+
+
 }

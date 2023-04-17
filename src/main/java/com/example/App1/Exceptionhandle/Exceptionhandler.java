@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import jakarta.mail.AuthenticationFailedException;
 import jakarta.mail.MethodNotSupportedException;
 
  @RestControllerAdvice
@@ -38,6 +39,15 @@ public class Exceptionhandler {
 		return  new ResponseEntity<String>("what you looking for does not exist",HttpStatus.BAD_REQUEST);
 	}
 	
+	@ExceptionHandler(AuthenticationFailedException.class)
+	public ResponseEntity<String> handleAuthenticationFailedException(AuthenticationFailedException ex)
+	{
+		return new ResponseEntity<String>("User or PassWord is incorrect",HttpStatus.BAD_GATEWAY);
+	}
 	
-
+	@ExceptionHandler(Exception.class)
+	public ResponseEntity<?> handleException(Exception ex)
+	{
+		return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+	}
 }

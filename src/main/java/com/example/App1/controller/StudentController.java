@@ -1,6 +1,5 @@
 package com.example.App1.controller;
 
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.App1.Entity.Student;
+import com.example.App1.dto.ForgottenpasswordDto;
 import com.example.App1.dto.LoginDto;
 import com.example.App1.dto.LogoutDto;
 import com.example.App1.dto.changepasswordDto;
@@ -63,27 +63,40 @@ public class StudentController {
 	public Optional<Student> find(@PathVariable @Valid Integer id)
 	{
 		Optional<Student> st = studentService.findbyid(id);
-		System.out.println(st);
-		if(st.isEmpty())
-		{
-			
-			throw new NoSuchElementException("id doesn't exist");
-		}
-		else return st;
+		return st;
 	}
+	
+	
 	@PostMapping("change")
-	public ResponseEntity<String> change(@RequestBody changepasswordDto changepasswordDto)
+	public ResponseEntity<String> change(@RequestBody @Valid changepasswordDto changepasswordDto)
 	{
 		
 		Student st = studentService.changepass(changepasswordDto);
 		studentService.update(st);
 		return ResponseEntity.ok(changepasswordDto.getMessage());
 	}
+	
+	
+	
+	
 	@PostMapping("logout")
-	public ResponseEntity<String> logout(@RequestBody LogoutDto logoutDto)
+	public ResponseEntity<String> logout(@RequestBody @Valid LogoutDto logoutDto)
 	{
 		Student st =  studentService.logout(logoutDto);
 		studentService.update(st);
 		return ResponseEntity.ok(logoutDto.getMessage());
+	}
+	
+	@PostMapping("forgotton")
+	public ResponseEntity<Student> forgotton(@RequestBody @Valid ForgottenpasswordDto forgottenpasswordDto) throws Exception
+	{
+		return ResponseEntity.ok(studentService.forgottenpass(forgottenpasswordDto));
+	}
+	
+	
+	@PostMapping("add")
+	public ResponseEntity<LoginDto> add(@RequestBody @Valid Student student)
+	{
+		return ResponseEntity.ok(studentService.logindto(student));
 	}
 }
